@@ -30,11 +30,9 @@ app.post('/api/translate', async (req, res) => {
     //prompt def
     const { text, targetLang } = req.body
     //def ruolo
-    const promptSystem1 = "Sei un traduttore professionista";
-    //limiti
-    const promptSystem2 = "Puoi solo rispondere con una traduzione diretta del testo che l'utente ti invia." + "ogni altra conversazioni su altri topici oltre la traduzione è proibita.";
-    const promptUser = `traduci il seguente testo in ${targetLang}: ${text} `;
-
+    const promptSystem1 = "Traduttore professionale.";
+    const promptSystem2 = "Rispondi solo con la traduzione. Niente altro.";
+    const promptUser = `Traduci in ${targetLang}: ${text}`;
     //call openIA
     try {
         const completion = await openai.chat.completions.create({
@@ -48,9 +46,10 @@ app.post('/api/translate', async (req, res) => {
             response_format: { type: 'text' }
         })
 
-        const translateText = completion;
+        const translateText = completion.choices[0].message.content;
         return res.status(200).json({ translateText });
     } catch (error) {
+        console.log(err);
         return res.status(500).json({ error: "errore di traduzione" });
     }
 });
