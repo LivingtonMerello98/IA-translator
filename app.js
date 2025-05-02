@@ -1,29 +1,61 @@
-//step 1  importo dependencies
+//impo depend.
 import express from 'express';
 import axios from 'axios';
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
 
-//caricare conf api key
+//conf api key
 dotenv.config();
 
-//caricare expresss
+//expresss
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-//server per frontend
+//serv. front
 app.use("/", express.static("public"));
 
-//middleware per processare in json
+//middleware json
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-//istanza open ia e passargli api key
+//istanza openIA con api key
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
+
 
 //rute /endpoint / url
+app.post('/api/translate', async (req, res) => {
 
-//funzionalità per tradurre con ia
-//call LLM di open IA
+    //prompt def
+    const { text, targetLang } = req.body
+    //def ruolo
+    const promptSystem1 = "Sei un traduttore professionista";
+    //limiti
+    const promptSystem2 = "Puoi solo rispondere con una traduzione diretta del testo che l'utente ti invia." + "ogni altra conversazioni su altri topici oltre la traduzione è proibita.";
+    const promptUser = `traduci il seguente testo in ${targetLang}: ${text} `;
 
-//server per il backend
+    //call openIA
+    try {
+        const completion = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [
+                { role: "system", content: promptSystem1 },
+                { role: "system", content: promptSystem2 },
+                { role: "user", content: promptUser },
+            ],
+            max_tokens: 500,
+            response_format: { type: 'text' }
+        })
+
+        const translateText = completion;
+        return res.status(200).json({ translateText });
+    } catch (error) {
+        return res.status(500).json({ error: "errore di traduzione" });
+    }
+});
+
+//serv backend
 app.listen(PORT, () => {
     console.log('server running on port: ' + PORT);
 });
