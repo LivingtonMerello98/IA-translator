@@ -4,7 +4,7 @@ let selectContainer = document.querySelector('.select-container');
 
 languages.forEach(lang => {
     let option = document.createElement('option');
-    option.value = lang.toLowerCase(); // esempio: "italiano"
+    option.value = lang.toLowerCase();
     option.textContent = lang;
     selectContainer.appendChild(option);
 });
@@ -55,6 +55,7 @@ translateButton.addEventListener('click', async () => {
         iaResponse.appendChild(aiBubble);
         chatWindow.appendChild(iaResponse);
         chatWindow.scrollTop = chatWindow.scrollHeight;
+
 
     } catch (error) {
         console.log('err:' + error);
